@@ -1,0 +1,12 @@
+[package]
+name = "condroid-protocol"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+byteorder.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]

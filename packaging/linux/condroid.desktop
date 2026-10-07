@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Condroid Server
+Comment=Low-latency virtual gamepad host for Condroid
+Exec=condroid-server
+Icon=condroid
+Categories=Game;Utility;
+Terminal=true

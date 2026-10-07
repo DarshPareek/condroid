@@ -1,0 +1,20 @@
+[package]
+name = "condroid-server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+condroid-protocol = { path = "../condroid-protocol" }
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+clap.workspace = true
+thiserror.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+condroid-uinput = { path = "../condroid-uinput" }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+vigem-client = "0.1.4"

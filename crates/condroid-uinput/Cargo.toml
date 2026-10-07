@@ -1,0 +1,12 @@
+[package]
+name = "condroid-uinput"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+condroid-protocol = { path = "../condroid-protocol" }
+evdev.workspace = true
+thiserror.workspace = true
+tracing.workspace = true

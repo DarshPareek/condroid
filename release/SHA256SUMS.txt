@@ -1,0 +1,3 @@
+4407d1d996e1939173280a0144a84d335556ac3c6d0fff54ecfb3e4355c83684  condroid-server-v1.0.0-linux-x86_64.AppImage
+e1c270131ddd6ce7a5379ffdfb52066ce1cf159dbf83cf11d301729af42c287f  condroid-server-v1.0.0-windows-x64.exe
+d0b9780363a4c6a1f04726273ef4ab36752db7d565f8eccfa199a2872a94a579  condroid-v1.0.0-android.apk

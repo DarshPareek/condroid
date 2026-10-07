@@ -1,0 +1,12 @@
+target/
+**/*.rs.bk
+Cargo.lock
+
+# Android / Gradle
+.gradle/
+build/
+**/build/
+*.iml
+.idea/
+local.properties
+.DS_Store
