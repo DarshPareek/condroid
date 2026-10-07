@@ -51,6 +51,7 @@ class GamepadView @JvmOverloads constructor(
     var telemetryRateHz: Float = 0f
     var isGyroActive: Boolean = false
     var showHud: Boolean = true
+    var assignedPlayerSlot: Int = 0
 
     // Quick Ball Floating Menu State
     var isQuickBallExpanded: Boolean = false
@@ -320,7 +321,8 @@ class GamepadView @JvmOverloads constructor(
         if (!isEditMode && showHud) {
             val isConnected = udpSender?.isConnected() == true
             hudTextPaint.color = if (isConnected) Color.parseColor("#00E676") else Color.parseColor("#FF1744")
-            val statusText = if (isConnected) "● CONNECTED (${currentPreset.name})" else "○ DISCONNECTED"
+            val playerPrefix = if (assignedPlayerSlot > 0) "PLAYER $assignedPlayerSlot • " else ""
+            val statusText = if (isConnected) "● ${playerPrefix}CONNECTED (${currentPreset.name})" else "○ DISCONNECTED"
             canvas.drawText(statusText, width * 0.5f, height * 0.28f, hudTextPaint)
 
             hudTextPaint.color = Color.parseColor("#89929B")

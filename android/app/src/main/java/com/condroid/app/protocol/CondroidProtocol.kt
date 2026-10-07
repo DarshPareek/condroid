@@ -10,12 +10,15 @@ object CondroidProtocol {
     const val PING_PACKET_SIZE = 12
     const val PONG_PACKET_SIZE = 16
     const val RUMBLE_PACKET_SIZE = 8
+    const val SLOT_INFO_PACKET_SIZE = 6
 
     const val TYPE_STATE: Byte = 1
     const val TYPE_PING: Byte = 2
     const val TYPE_PONG: Byte = 3
     const val TYPE_RUMBLE: Byte = 4
     const val TYPE_DISCONNECT: Byte = 5
+    const val TYPE_SLOT_INFO: Byte = 6
+
 
     /**
      * Compute CRC8 checksum matching host implementation
@@ -124,5 +127,22 @@ object CondroidProtocol {
         val clientTs = bb.int
         val serverTs = bb.int
         return PongEvent(seq, clientTs, serverTs)
+    }
+
+    data class SlotInfoEvent(val playerSlot: Int, val totalSlots: Int)
+
+    fun parseSlotInfo(buf: ByteArray, length: Int): SlotInfoEvent? {
+        if (length < SLOT_INFO_PACKET_SIZE) return null
+        val bb = ByteBuffer.wrap(buf, 0, length).order(ByteOrder.LITTLE_ENDIAN)
+        val magic = bb.short
+        if (magic != PROTOCOL_MAGIC) return null
+        val version = bb.get()
+        if (version != PROTOCOL_VERSION) return null
+        val type = bb.get()
+        if (type != TYPE_SLOT_INFO) return null
+
+        val slot = bb.get().toInt() and 0xFF
+        val total = bb.get().toInt() and 0xFF
+        return SlotInfoEvent(slot, total)
     }
 }

@@ -23,6 +23,8 @@ class UdpSender(
     private val hapticEngine: HapticEngine,
     private val onTelemetryUpdate: (rttMs: Float, sendRateHz: Float) -> Unit
 ) {
+    var onSlotAssigned: ((slot: Int, totalSlots: Int) -> Unit)? = null
+
     private var udpSocket: DatagramSocket? = null
     private var tcpSocket: Socket? = null
     private var tcpOut: OutputStream? = null
@@ -240,6 +242,7 @@ class UdpSender(
                             2 -> CondroidProtocol.PING_PACKET_SIZE
                             3 -> CondroidProtocol.PONG_PACKET_SIZE
                             4 -> CondroidProtocol.RUMBLE_PACKET_SIZE
+                            6 -> CondroidProtocol.SLOT_INFO_PACKET_SIZE
                             else -> 4
                         }
                         val remaining = expectedLen - 4
@@ -257,6 +260,13 @@ class UdpSender(
                         val packet = DatagramPacket(recvBuffer, recvBuffer.size)
                         s.receive(packet)
                         packet.length
+                    }
+
+                    // Check for SlotInfo packet
+                    val slotInfo = CondroidProtocol.parseSlotInfo(recvBuffer, len)
+                    if (slotInfo != null) {
+                        onSlotAssigned?.invoke(slotInfo.playerSlot, slotInfo.totalSlots)
+                        continue
                     }
 
                     // Check for Pong packet

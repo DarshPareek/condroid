@@ -48,6 +48,13 @@ class GamepadActivity : AppCompatActivity() {
                 if (rateHz >= 0) gamepadView.telemetryRateHz = rateHz
                 gamepadView.invalidate()
             }
+        }.apply {
+            onSlotAssigned = { slot, _ ->
+                runOnUiThread {
+                    gamepadView.assignedPlayerSlot = slot
+                    gamepadView.invalidate()
+                }
+            }
         }
 
         gamepadView = GamepadView(this).apply {

@@ -9,6 +9,8 @@ Condroid is built for gamers who want responsive touch controls without annoying
 ## ✨ Features
 
 - **⚡ Ultra-Low Latency**: Sub-1ms over USB cable, ~2ms over a 5GHz Wi-Fi hotspot.
+- **🖥️ Native Desktop GUI (Linux & Windows)**: Built-in desktop frontend displaying real-time latency (RTT ms), connected devices, network details, live controller input telemetry, and individual device disconnect buttons. (Terminal `--headless` mode also available).
+- **👥 Multi-Device Multiplayer**: Connect up to 4 Android devices simultaneously to one PC. Each phone gets its own virtual Xbox 360 controller (`Player 1`, `Player 2`, etc.) for couch co-op gaming.
 - **🎮 Kernel Xbox 360 Emulation**: Native `/dev/uinput` driver on Linux and ViGEmBus on Windows. Works instantly with Steam, Wine/Proton, and all PC games.
 - **🎨 Material You Theming**: Dynamically adapts colors from your phone's wallpaper (Android 12+).
 - **🕹️ Fully Customizable Layouts**: Move, resize, and hide buttons. Choose button shapes (**Circle**, **Square**, **Triangle**, **Rounded Rect**), and save custom presets.
@@ -25,8 +27,9 @@ Pre-compiled release packages are available in the [`release/`](release/) direct
 | Platform | Package | Download | Requirements |
 | :--- | :--- | :--- | :--- |
 | **Android** | Android App | [`condroid-v1.0.0-android.apk`](release/condroid-v1.0.0-android.apk) | Android 8.0 or newer |
-| **Linux** | Server AppImage | [`condroid-server-v1.0.0-linux-x86_64.AppImage`](release/condroid-server-v1.0.0-linux-x86_64.AppImage) | 64-bit Linux |
-| **Windows** | Windows Server | [`condroid-server-v1.0.0-windows-x64.exe`](release/condroid-server-v1.0.0-windows-x64.exe) | Windows 10/11 (64-bit) |
+| **Linux** | Server AppImage (GUI + CLI) | [`condroid-server-v1.0.0-linux-x86_64.AppImage`](release/condroid-server-v1.0.0-linux-x86_64.AppImage) | 64-bit Linux |
+| **Windows** | Windows Server (GUI + CLI) | [`condroid-server-v1.0.0-windows-x64.exe`](release/condroid-server-v1.0.0-windows-x64.exe) | Windows 10/11 (64-bit) |
+
 
 Integrity checksums are available in [`release/SHA256SUMS.txt`](release/SHA256SUMS.txt).
 

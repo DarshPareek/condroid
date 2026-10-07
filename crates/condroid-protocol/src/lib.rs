@@ -19,6 +19,9 @@ pub const PONG_PACKET_SIZE: usize = 16;
 /// Size of the Rumble binary packet in bytes
 pub const RUMBLE_PACKET_SIZE: usize = 8;
 
+/// Size of the SlotInfo binary packet in bytes
+pub const SLOT_INFO_PACKET_SIZE: usize = 6;
+
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum ProtocolError {
     #[error("Packet is too short: expected at least {expected} bytes, got {actual}")]
@@ -48,6 +51,7 @@ pub enum PacketType {
     Pong = 0x03,
     Rumble = 0x04,
     Disconnect = 0x05,
+    SlotInfo = 0x06,
 }
 
 impl TryFrom<u8> for PacketType {
@@ -60,6 +64,7 @@ impl TryFrom<u8> for PacketType {
             0x03 => Ok(PacketType::Pong),
             0x04 => Ok(PacketType::Rumble),
             0x05 => Ok(PacketType::Disconnect),
+            0x06 => Ok(PacketType::SlotInfo),
             unknown => Err(ProtocolError::UnknownPacketType(unknown)),
         }
     }
@@ -408,6 +413,59 @@ impl RumblePacket {
     }
 }
 
+/// Slot Information packet (Host -> Client)
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SlotInfoPacket {
+    pub player_slot: u8, // 1-indexed (e.g. 1 for Player 1, 2 for Player 2)
+    pub total_slots: u8, // Maximum available slots (e.g. 4)
+}
+
+impl SlotInfoPacket {
+    pub fn serialize(&self, out: &mut [u8]) -> Result<usize, ProtocolError> {
+        if out.len() < SLOT_INFO_PACKET_SIZE {
+            return Err(ProtocolError::BufferTooSmall {
+                provided: out.len(),
+                required: SLOT_INFO_PACKET_SIZE,
+            });
+        }
+        LittleEndian::write_u16(&mut out[0..2], PROTOCOL_MAGIC);
+        out[2] = PROTOCOL_VERSION;
+        out[3] = PacketType::SlotInfo as u8;
+        out[4] = self.player_slot;
+        out[5] = self.total_slots;
+        Ok(SLOT_INFO_PACKET_SIZE)
+    }
+
+    pub fn deserialize(buf: &[u8]) -> Result<Self, ProtocolError> {
+        if buf.len() < SLOT_INFO_PACKET_SIZE {
+            return Err(ProtocolError::PacketTooShort {
+                expected: SLOT_INFO_PACKET_SIZE,
+                actual: buf.len(),
+            });
+        }
+        let magic = LittleEndian::read_u16(&buf[0..2]);
+        if magic != PROTOCOL_MAGIC {
+            return Err(ProtocolError::InvalidMagic {
+                expected: PROTOCOL_MAGIC,
+                actual: magic,
+            });
+        }
+        if buf[2] != PROTOCOL_VERSION {
+            return Err(ProtocolError::UnsupportedVersion {
+                expected: PROTOCOL_VERSION,
+                actual: buf[2],
+            });
+        }
+        if PacketType::try_from(buf[3])? != PacketType::SlotInfo {
+            return Err(ProtocolError::UnknownPacketType(buf[3]));
+        }
+        Ok(Self {
+            player_slot: buf[4],
+            total_slots: buf[5],
+        })
+    }
+}
+
 /// Generic high-level packet enumeration
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Packet {
@@ -416,6 +474,7 @@ pub enum Packet {
     Pong(PongPacket),
     Rumble(RumblePacket),
     Disconnect,
+    SlotInfo(SlotInfoPacket),
 }
 
 impl Packet {
@@ -446,6 +505,7 @@ impl Packet {
             PacketType::Pong => Ok(Packet::Pong(PongPacket::deserialize(buf)?)),
             PacketType::Rumble => Ok(Packet::Rumble(RumblePacket::deserialize(buf)?)),
             PacketType::Disconnect => Ok(Packet::Disconnect),
+            PacketType::SlotInfo => Ok(Packet::SlotInfo(SlotInfoPacket::deserialize(buf)?)),
         }
     }
 }
@@ -556,5 +616,22 @@ mod tests {
 
         let parsed = RumblePacket::deserialize(&buf[..n]).unwrap();
         assert_eq!(rumble, parsed);
+    }
+
+    #[test]
+    fn test_slot_info_roundtrip() {
+        let slot_info = SlotInfoPacket {
+            player_slot: 2,
+            total_slots: 4,
+        };
+        let mut buf = [0u8; 16];
+        let n = slot_info.serialize(&mut buf).unwrap();
+        assert_eq!(n, SLOT_INFO_PACKET_SIZE);
+
+        let parsed = SlotInfoPacket::deserialize(&buf[..n]).unwrap();
+        assert_eq!(slot_info, parsed);
+
+        let pkt = Packet::parse(&buf[..n]).unwrap();
+        assert_eq!(pkt, Packet::SlotInfo(slot_info));
     }
 }
